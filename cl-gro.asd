@@ -6,4 +6,9 @@
   :serial t
   :components ((:file "package")
 	       (:file "config")
-	       (:file "vmd")))
+	       (:file "utils")
+	       (:file "vmd")
+	       (:file "single-atom")
+	       (:file "residue")
+	       (:file "system")
+	       (:file "writer")))
