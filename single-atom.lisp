@@ -2,10 +2,7 @@
 
 
 (defclass single-atom ()
-  ((id :initarg :single-atom-id
-       :type integer
-       :accessor single-atom-id)
-   (name :initarg :single-atom-name
+  ((name :initarg :single-atom-name
 	 :type symbol
 	 :accessor single-atom-name)
    (position :initarg :single-atom-position

@@ -11,7 +11,10 @@
 	     :initform #(1.0 1.0 1.0)
 	     :reader system-box-size)
    (residues :initarg :system-residues
-	     :accessor system-residues)
-   (number-atoms :initarg :system-number-atoms ; to be removed
-		 :type integer
-		 :reader system-number-atoms)))
+	     :accessor system-residues)))
+
+
+
+(defmethod number-atoms ((system system))
+  (loop for residue in (system-residues system)
+        sum (number-atoms residue)))
