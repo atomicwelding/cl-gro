@@ -1,3 +1,3 @@
 (defpackage #:cl-gro
   (:use #:cl)
-  (:export #:system))
+  (:export #:defmolecule))
