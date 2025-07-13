@@ -1,3 +1,2 @@
 (defpackage #:cl-gro
-  (:use #:cl)
-  (:export #:defmolecule))
+  (:use #:cl))
