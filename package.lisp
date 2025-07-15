@@ -63,8 +63,10 @@
        :system-title ,title
        :system-box-size ',box
        :system-residues
-       (list ,@(loop for (residue x y z) in residues
-                     collect `(,residue ,x ,y ,z))))))
+       (mapcar (lambda (spec)
+                 (destructuring-bind (res x y z) spec
+                   (funcall res x y z)))
+               ,residues))))
 
 
 (defmethod initialize-instance :after ((system system) &key)
@@ -133,18 +135,16 @@
 
 
 ;; idees
-(defun grid (res nx ny nz dx dy dz)
-  (loop for i from 0 below nx
-        append
-          (loop for j from 0 below ny
-                append
-                  (loop for k from 0 below nz
-                        collect (list res
-                                      (* i dx)
-                                      (* j dy)
-                                      (* k dz))))))
 
-
+(defmacro grid (res nx ny nz dx dy dz)
+  `(list
+     ,@(loop for i from 0 below nx
+             append (loop for j from 0 below ny
+                          append (loop for k from 0 below nz
+                                       collect `(list ',res
+                                                      ,(* i dx)
+                                                      ,(* j dy)
+                                                      ,(* k dz)))))))
 ;; tests
 (defresidue water
   :name "WATER"
@@ -159,8 +159,15 @@
 (defsystem solvated-box
   :title "a solvated box"
   :box (10.0 10.0 10.0)
-  :residues ((water 0.0 0.0 0.0)
+  :residues '((water 0.0 0.0 0.0)
 	     (water 5.0 5.0 5.0)
 	     (water 3.0 3.0 3.0)))
 
+(defsystem solvated-box-grid
+  :title "a solvated box with a grid"
+  :box (100.0 100.0 100.0)
+  :residues (grid water 6 6 6 3.0 3.0 3.0))
+
 (export-system-gro solvated-box "cl-gro/example.gro")
+(export-system-gro solvated-box-grid "cl-gro/example-grid.gro")
+
