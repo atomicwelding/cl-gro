@@ -140,7 +140,6 @@
 
 
 ;; idees
-
 (defmacro grid (res nx ny nz dx dy dz)
   `(list
      ,@(loop for i from 0 below nx
@@ -152,12 +151,12 @@
                                                       ,(* k dz)))))))
 
 
-(defun visualize (path)
-  (send-vmd (concatenate 'string "mol new " path))
-  (sleep 0.1)
-  (send-vmd "mol representation VDW")
-  (send-vmd "mol color Name")
-  (send-vmd "mol addrep 0"))
+;; (defun visualize (path)
+;;   (send-vmd (concatenate 'string "mol new " path))
+;;   (sleep 0.1)
+;;   (send-vmd "mol representation VDW")
+;;   (send-vmd "mol color Name")
+;;   (send-vmd "mol addrep 0"))
 
 ;; tests
 (defresidue water
