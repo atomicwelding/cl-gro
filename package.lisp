@@ -1,6 +1,11 @@
 (defpackage #:cl-gro
-  (:use #:cl)
+  (:use #:cl #:cl-vmd)
   (:shadow :atom))
+
+;; TODO
+;; trois choses intéressantes à coder
+;; 1. des distributions
+;; 2. lire des .gro
 
 (in-package #:cl-gro)
 
@@ -86,7 +91,7 @@
 
 (defmethod number-atoms-in ((system system))
   (loop for residue in (system-residues system)
-       sum (number-of residue)))
+       sum (number-atoms-in residue)))
 
 
 (defmethod as-gro-string ((atom atom))
@@ -145,6 +150,15 @@
                                                       ,(* i dx)
                                                       ,(* j dy)
                                                       ,(* k dz)))))))
+
+
+(defun visualize (path)
+  (send-vmd (concatenate 'string "mol new " path))
+  (sleep 0.1)
+  (send-vmd "mol representation VDW")
+  (send-vmd "mol color Name")
+  (send-vmd "mol addrep 0"))
+
 ;; tests
 (defresidue water
   :name "WATER"
@@ -170,4 +184,3 @@
 
 (export-system-gro solvated-box "cl-gro/example.gro")
 (export-system-gro solvated-box-grid "cl-gro/example-grid.gro")
-

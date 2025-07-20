@@ -4,4 +4,5 @@
   :license "to-be-defined"
   :version "0.1"
   :serial t
+  :depends-on ("cl-vmd")
   :components ((:file "package")))
