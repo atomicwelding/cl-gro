@@ -139,24 +139,25 @@
     (format t "Done!~%")))
 
 
+(defmethod visualize ((system system))
+  (export-system-gro system "/tmp/temp.gro")
+  (vmd/script
+   (display resetview)
+   (mol new "/tmp/temp.gro")
+   (mol representation VDW)
+   (mol addrep 0)
+   (display update)))
+
 ;; idees
 (defmacro grid (res nx ny nz dx dy dz)
   `(list
-     ,@(loop for i from 0 below nx
-             append (loop for j from 0 below ny
-                          append (loop for k from 0 below nz
-                                       collect `(list ',res
-                                                      ,(* i dx)
-                                                      ,(* j dy)
-                                                      ,(* k dz)))))))
-
-
-;; (defun visualize (path)
-;;   (send-vmd (concatenate 'string "mol new " path))
-;;   (sleep 0.1)
-;;   (send-vmd "mol representation VDW")
-;;   (send-vmd "mol color Name")
-;;   (send-vmd "mol addrep 0"))
+    ,@(loop for i from 0 below nx
+            append (loop for j from 0 below ny
+                         append (loop for k from 0 below nz
+                                      collect `(list ',res
+                                                     ,(* i dx)
+                                                     ,(* j dy)
+                                                     ,(* k dz)))))))
 
 ;; tests
 (defresidue water
