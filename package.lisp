@@ -5,8 +5,8 @@
 ;; TODO
 ;; trois choses intéressantes à coder
 ;; 1. des distributions
-;; 2. lire des .gro
-;; 3. Gérer les vitesses
+;; 2. Gérer les vitesses
+;; 3. régler le probleme d'interactivité avec vmd
 
 (in-package #:cl-gro)
 
@@ -83,7 +83,8 @@
 	   (setf (residue-number residue) resnum)
 	   (loop for atom in (residue-atoms residue)
 		 do
-		    (setf (atom-number atom) atomnum))))
+		    (setf (atom-number atom) atomnum)
+		 (incf atomnum))))
 
 
 (defmethod number-atoms-in ((residue residue))
@@ -124,7 +125,7 @@
 	       (format nil "~a~%" (system-title system))
 	       (format nil "~5d~%" (number-atoms-in system))
 	       (apply #'concatenate 'string (mapcar #'as-gro-string (system-residues system)))
-	       (format nil "~8,5f ~8,5f ~8,5f~%" 
+	       (format nil "   ~8,5f ~8,5f ~8,5f~%" 
 		       (first (system-box-size system)) 
 		       (second (system-box-size system)) 
 		       (third (system-box-size system)))))
@@ -156,7 +157,6 @@
   (with-open-file (in filename :direction :input :external-format :utf-8)
     (let* ((title (read-line in))
            (natoms (parse-integer (string-trim " " (read-line in))))
-           (atoms '())
            (residue-map (make-hash-table :test #'equal)))
       ;; atoms
       (loop for _ from 1 to natoms
@@ -217,10 +217,11 @@
 (defmethod visualize ((system system))
   (export-system-gro system "/tmp/temp.gro")
   (vmd/script
-   (display resetview)
+;   (display resetview)
    (mol new "/tmp/temp.gro")
    (mol representation VDW)
    (mol addrep 0)
+   (mol top 0)
    (display update)))
 
 ;; idees
@@ -269,3 +270,11 @@
 
 (defparameter membrane
   (import-system-gro "cl-gro/membrane.gro"))
+
+(export-system-gro membrane
+		   "cl-gro/membrane-read.gro")
+
+
+
+
+
