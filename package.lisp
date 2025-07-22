@@ -6,6 +6,7 @@
 ;; trois choses intéressantes à coder
 ;; 1. des distributions
 ;; 2. lire des .gro
+;; 3. Gérer les vitesses
 
 (in-package #:cl-gro)
 
@@ -157,31 +158,34 @@
            (natoms (parse-integer (string-trim " " (read-line in))))
            (atoms '())
            (residue-map (make-hash-table :test #'equal)))
-      
       ;; atoms
-      (dotimes (_ natoms)
-        (let ((line (read-line in)))
-          (let* ((resnum (parse-integer (subseq line 0 5)))
-                 (resname (string-trim " " (subseq line 5 10)))
-                 (atomname (string-trim " " (subseq line 10 15)))
-                 (atomnum (parse-integer (subseq line 15 20)))
-                 (x (parse-number (string-trim " " (subseq line 20 28))))
-                 (y (parse-number (string-trim " " (subseq line 28 36))))
-                 (z (parse-number (string-trim " " (subseq line 36 44))))
-                 (key (list resnum resname)))
-            
-	    ;; make the atom
-            (let ((atom (make-instance 'atom
-                                       :atom-name atomname
-                                       :atom-number atomnum
-                                       :atom-x x :atom-y y :atom-z z)))
-	      ;; group by residue
-              (push atom (gethash key residue-map))))))
+      (loop for _ from 1 to natoms
+            do (let ((line (read-line in)))
+		 
+		 (let* ((resnum (parse-integer (subseq line 0 5)))
+			(resname (string-trim " " (subseq line 5 10)))
+			(atomname (string-trim " " (subseq line 10 15)))
+			(atomnum (parse-integer (subseq line 15 20)))
+			(x (parse-number (string-trim " " (subseq line 20 28))))
+			(y (parse-number (string-trim " " (subseq line 28 36))))
+			(z (parse-number (string-trim " " (subseq line 36 44))))
+			(key (list resnum resname)))
+		   
+		   
+		   ;; make the atom
+		   (let ((atom (make-instance 'atom
+					      :atom-name atomname
+					      :atom-number atomnum
+					      :atom-x x :atom-y y :atom-z z)))
+		     ;; group by residue
+		     (push atom (gethash key residue-map))))))
 
       ;; box-size
       (let* ((box-line (read-line in))
-             (box-parts (mapcar #'parse-number
-				(split-sequence:split-sequence #\Space (string-trim " " box-line))))
+	     (tokens (remove "" (split-sequence:split-sequence #\Space
+                                                           (string-trim " " box-line))
+			     :test #'string=))
+             (box-parts (mapcar #'parse-number tokens))
              (residues '()))
         
 	;; build residue
@@ -203,17 +207,12 @@
 		   (setf (residue-x residue) cx)
 		   (setf (residue-y residue) cy)
 		   (setf (residue-z residue) cz)))
-
-
-					;		     (multiple-value-bind (cx cy cz) (compute-residue-center atom-list))
         
         ;; make system
         (make-instance 'system
                        :system-title title
                        :system-residues (nreverse residues)
                        :system-box-size box-parts)))))
-
-
 
 (defmethod visualize ((system system))
   (export-system-gro system "/tmp/temp.gro")
@@ -267,3 +266,6 @@
 (export-system-gro solvated-box-read
 		   "cl-gro/example-read.gro")
 
+
+(defparameter membrane
+  (import-system-gro "cl-gro/membrane.gro"))
