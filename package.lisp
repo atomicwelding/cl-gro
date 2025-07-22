@@ -1,5 +1,5 @@
 (defpackage #:cl-gro
-  (:use #:cl #:cl-vmd)
+  (:use #:cl #:cl-vmd #:parse-number)
   (:shadow :atom))
 
 ;; TODO
@@ -139,6 +139,82 @@
     (format t "Done!~%")))
 
 
+(defmethod compute-residue-center ((residue residue))
+  (let* ((atoms (residue-atoms residue))
+	 (n (length atoms)))
+    (if (zerop n)
+        (values 0.0 0.0 0.0)
+        (loop for atom in atoms
+              sum (atom-x atom) into sx
+              sum (atom-y atom) into sy
+              sum (atom-z atom) into sz
+              finally (return (values (/ sx n) (/ sy n) (/ sz n)))))))
+
+
+(defun import-system-gro (filename)
+  (with-open-file (in filename :direction :input :external-format :utf-8)
+    (let* ((title (read-line in))
+           (natoms (parse-integer (string-trim " " (read-line in))))
+           (atoms '())
+           (residue-map (make-hash-table :test #'equal)))
+      
+      ;; atoms
+      (dotimes (_ natoms)
+        (let ((line (read-line in)))
+          (let* ((resnum (parse-integer (subseq line 0 5)))
+                 (resname (string-trim " " (subseq line 5 10)))
+                 (atomname (string-trim " " (subseq line 10 15)))
+                 (atomnum (parse-integer (subseq line 15 20)))
+                 (x (parse-number (string-trim " " (subseq line 20 28))))
+                 (y (parse-number (string-trim " " (subseq line 28 36))))
+                 (z (parse-number (string-trim " " (subseq line 36 44))))
+                 (key (list resnum resname)))
+            
+	    ;; make the atom
+            (let ((atom (make-instance 'atom
+                                       :atom-name atomname
+                                       :atom-number atomnum
+                                       :atom-x x :atom-y y :atom-z z)))
+	      ;; group by residue
+              (push atom (gethash key residue-map))))))
+
+      ;; box-size
+      (let* ((box-line (read-line in))
+             (box-parts (mapcar #'parse-number
+				(split-sequence:split-sequence #\Space (string-trim " " box-line))))
+             (residues '()))
+        
+	;; build residue
+        (maphash
+         (lambda (key atom-list)
+           (destructuring-bind (resnum resname) key
+	     (push (make-instance 'residue
+				  :residue-number resnum
+				  :residue-name resname
+				  :residue-atoms (nreverse atom-list)
+				  :residue-x 0.0 :residue-y 0.0 :residue-z 0.0) 
+                   residues)))
+         residue-map)
+
+
+	;; assign center of mass
+	(loop for residue in residues
+	      do (multiple-value-bind (cx cy cz) (compute-residue-center residue)
+		   (setf (residue-x residue) cx)
+		   (setf (residue-y residue) cy)
+		   (setf (residue-z residue) cz)))
+
+
+					;		     (multiple-value-bind (cx cy cz) (compute-residue-center atom-list))
+        
+        ;; make system
+        (make-instance 'system
+                       :system-title title
+                       :system-residues (nreverse residues)
+                       :system-box-size box-parts)))))
+
+
+
 (defmethod visualize ((system system))
   (export-system-gro system "/tmp/temp.gro")
   (vmd/script
@@ -184,3 +260,10 @@
 
 (export-system-gro solvated-box "cl-gro/example.gro")
 (export-system-gro solvated-box-grid "cl-gro/example-grid.gro")
+
+(defparameter solvated-box-read
+  (import-system-gro "cl-gro/example.gro"))
+
+(export-system-gro solvated-box-read
+		   "cl-gro/example-read.gro")
+
