@@ -3,7 +3,7 @@
   :author "weld"
   :license "to-be-defined"
   :version "0.1"
-  :depends-on ("cl-vmd" "parse-number" "fiveam")
+  :depends-on ("cl-vmd" "parse-number")
   :components ((:file "package")
 	       (:file "system")
 	       (:file "residue")
@@ -11,7 +11,13 @@
 	       (:file "import")
 	       (:file "visualize")
 	       (:module "examples"
-		:components ((:file "run-demo")))
-	       (:module "tests"
-		:components ((:file "package")
-			     (:file "tests")))))
+		:components ((:file "run-demo")))))
+
+
+(asdf:defsystem #:cl-gro/tests
+  :depends-on ("cl-gro" "fiveam")
+  :serial t
+  :components ((:file "tests/suites")
+	       (:file "tests/tests"))
+  :perform (asdf:test-op (o c)
+             (uiop:symbol-call :fiveam :run! 'cl-gro-tests)))
