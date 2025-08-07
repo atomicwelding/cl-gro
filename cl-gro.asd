@@ -13,4 +13,5 @@
 	       (:module "examples"
 		:components ((:file "run-demo")))
 	       (:module "tests"
-		:components ((:file "tests")))))
+		:components ((:file "package")
+			     (:file "tests")))))
