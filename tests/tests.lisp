@@ -4,4 +4,4 @@
 (in-suite cl-gro-tests)
 
 (test one-equals-one
-  (is (= 1 1)))
+  (is (= 1 2)))

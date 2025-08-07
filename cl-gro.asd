@@ -1,4 +1,4 @@
-(asdf:defsystem #:cl-gro
+(asdf:defsystem "cl-gro"
   :description "A DSL to build molecular dynamics system in gromacs"
   :author "weld"
   :license "to-be-defined"
@@ -14,10 +14,10 @@
 		:components ((:file "run-demo")))))
 
 
-(asdf:defsystem #:cl-gro/tests
+(asdf:defsystem "cl-gro/tests"
   :depends-on ("cl-gro" "fiveam")
   :serial t
   :components ((:file "tests/suites")
 	       (:file "tests/tests"))
-  :perform (asdf:test-op (o c)
+  :perform (test-op (o c)
              (uiop:symbol-call :fiveam :run! 'cl-gro-tests)))
