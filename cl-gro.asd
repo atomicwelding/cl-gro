@@ -3,6 +3,10 @@
   :author "weld"
   :license "to-be-defined"
   :version "0.1"
-  :serial t
-  :depends-on ("cl-vmd")
-  :components ((:file "package")))
+  :depends-on ("cl-vmd" "parse-number")
+  :components ((:file "package")
+	       (:file "system")
+	       (:file "residue")
+	       (:file "atom")
+	       (:file "import")
+	       (:file "visualize")))
