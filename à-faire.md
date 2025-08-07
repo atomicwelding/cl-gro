@@ -1,11 +1,15 @@
 # À faire
 
-revoir les macros, réfléchir au DSL (j'ai quelques pistes dans macro.lisp)
-ecrire un reader
-ecrire la partie vmd
-ecrire un "write line"
-ecrire un "read line"
-DEMARRER LES TESTS SURTOUT ET SIMPLIFIER A MORT
+## TODO
+
+Écrire des distributions
+
+Gérer les vitesses dans les .gro
+
+Régler le problème d'interactivité de vmd
+
+
+Réécrire la gestion des paths 
 
 ## VMD
 
