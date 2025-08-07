@@ -9,4 +9,6 @@
 	       (:file "residue")
 	       (:file "atom")
 	       (:file "import")
-	       (:file "visualize")))
+	       (:file "visualize")
+	       (:module "examples"
+		:components ((:file "run-demo")))))
